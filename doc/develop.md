@@ -11,15 +11,20 @@ docker run -d --name nats-server -p 4222:4222 -p 6222:6222 -p 8222:8222 nats
 ### etcd key/value store
 
 ```
-export HOST_IP="192.168.209.143"
-docker run -d -v /usr/share/ca-certificates/:/etc/ssl/certs -p 4001:4001 -p 2380:2380 -p 2379:2379 \
- --name etcd quay.io/coreos/etcd:v2.3.8 \
- -name etcd0 \
- -advertise-client-urls http://${HOST_IP}:2379,http://${HOST_IP}:4001 \
- -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 \
- -initial-advertise-peer-urls http://${HOST_IP}:2380 \
- -listen-peer-urls http://0.0.0.0:2380 \
- -initial-cluster-token etcd-cluster-1 \
- -initial-cluster etcd0=http://${HOST_IP}:2380 \
- -initial-cluster-state new
+export NODE1="192.168.209.143"
+
+docker volume create --name etcd-data
+export DATA_DIR="etcd-data"
+
+docker run -d \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  --net=host \
+  --volume=${DATA_DIR}:/etcd-data \
+  --name etcd quay.io/coreos/etcd:latest \
+  /usr/local/bin/etcd \
+  --data-dir=/etcd-data --name node1 \
+  --initial-advertise-peer-urls http://${NODE1}:2380 --listen-peer-urls http://0.0.0.0:2380 \
+  --advertise-client-urls http://${NODE1}:2379 --listen-client-urls http://0.0.0.0:2379 \
+  --initial-cluster node1=http://${NODE1}:2380
 ```

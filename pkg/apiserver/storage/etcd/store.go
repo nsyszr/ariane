@@ -1,6 +1,7 @@
 package etcd
 
 import (
+	"context"
 	"path"
 
 	"github.com/nsyszr/ariane/pkg/apiserver/storage"
@@ -23,4 +24,8 @@ func newStore(c *clientv3.Client, prefix string) *store {
 		pathPrefix: path.Join("/", prefix),
 	}
 	return result
+}
+
+func (s *store) Create(ctx context.Context, key string, obj, out /*runtime.Object*/ interface{}, ttl uint64) error {
+	return nil
 }
