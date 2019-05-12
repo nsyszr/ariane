@@ -1,0 +1,3 @@
+.vscode/
+# Go dep package management
+vendor/
