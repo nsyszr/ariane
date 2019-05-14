@@ -1,5 +1,7 @@
 package api
 
+import "fmt"
+
 type Header map[string][]string
 
 type Request struct {
@@ -18,4 +20,8 @@ type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message,omitempty"`
 	Reason  string `json:"reason,omitempty"`
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprintf("Code: %d, Message: %s", e.Code, e.Message)
 }

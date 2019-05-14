@@ -1,12 +1,43 @@
-package main
+package handlers
 
-import "github.com/nsyszr/ariane/pkg/cmd/apiserver"
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"time"
 
-func main() {
-	apiserver.Execute()
+	"github.com/google/uuid"
+	"github.com/nats-io/go-nats"
+	"github.com/nsyszr/ariane/api/corev1"
+	"github.com/nsyszr/ariane/pkg/api"
+	"go.etcd.io/etcd/client"
+)
+
+type Handler struct {
+	nc *nats.Conn
 }
 
-/*func handleRequest(data []byte) ([]byte, error) {
+func NewHandler(nc *nats.Conn) *Handler {
+	return &Handler{
+		nc: nc,
+	}
+}
+
+func (h *Handler) SubscribeAPIGroups() error {
+	if _, err := h.nc.Subscribe("api.core.v1.namespace", func(msg *nats.Msg) {
+		data, err := h.handleCoreV1(msg.Data)
+		if err != nil {
+			log.Print("handle request error: ", err)
+		}
+		h.nc.Publish(msg.Reply, data)
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (h *Handler) handleCoreV1(data []byte) ([]byte, error) {
 	// We expect a request with contains the core/v1/Namespace object
 	ns := &corev1.Namespace{}
 	req := api.Request{Object: ns}
@@ -146,36 +177,3 @@ func isKeyNotFound(err error) bool {
 	}
 	return false
 }
-
-func main() {
-	nc, err := nats.Connect(nats.DefaultURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer nc.Close()
-
-	// Use a WaitGroup to wait for a message to arrive
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	// Subscribe
-	if _, err := nc.Subscribe("api.core.v1.namespace", func(msg *nats.Msg) {
-		log.Printf("received: %s", msg.Data)
-
-		data, err := handleRequest(msg.Data)
-		if err != nil {
-			log.Print("handle request error: ", err)
-		}
-
-		nc.Publish(msg.Reply, data)
-		wg.Done()
-	}); err != nil {
-		log.Fatal(err)
-	}
-
-	// Wait for a message to come in
-	wg.Wait()
-
-	// Close the connection
-	nc.Close()
-}*/

@@ -1,18 +1,37 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/nsyszr/ariane/api/corev1"
 	"github.com/nsyszr/ariane/api/metav1"
-	"github.com/nsyszr/ariane/pkg/api"
-
-	"github.com/nats-io/go-nats"
+	"github.com/nsyszr/ariane/client"
 )
 
 func main() {
+	cs, err := client.NewClientSetForNATS(client.NewConfigForNATS("localhost:4222"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer cs.Close()
+
+	obj := &corev1.Namespace{
+		Kind:       "Namespace",
+		APIVersion: "core/v1",
+		Metadata: metav1.ObjectMeta{
+			Name: "test-1212",
+		},
+	}
+
+	out, err := cs.CoreV1().Namespaces().Create(obj)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("%v", out)
+}
+
+/*func main() {
 	nc, err := nats.Connect(nats.DefaultURL)
 	if err != nil {
 		log.Fatal(err)
@@ -51,4 +70,4 @@ func main() {
 
 	// Close the connection
 	nc.Close()
-}
+}*/
