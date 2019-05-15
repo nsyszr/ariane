@@ -7,8 +7,9 @@ import (
 
 	"github.com/nats-io/go-nats"
 	"github.com/nsyszr/ariane/api/corev1"
+	"github.com/nsyszr/ariane/client"
+	corev1client "github.com/nsyszr/ariane/client/corev1"
 	"github.com/nsyszr/ariane/pkg/api"
-	"github.com/nsyszr/ariane/pkg/api/client"
 	"github.com/nsyszr/ariane/pkg/api/runtime"
 )
 
@@ -19,7 +20,7 @@ type Config struct {
 type clientSet struct {
 	cfg    *Config
 	nc     *nats.Conn
-	coreV1 client.CoreV1ClientSet
+	coreV1 corev1client.GroupSet
 }
 
 func NewClientSet(cfg *Config) (client.ClientSet, error) {
@@ -31,7 +32,7 @@ func NewClientSet(cfg *Config) (client.ClientSet, error) {
 	return &clientSet{
 		cfg:    cfg,
 		nc:     nc,
-		coreV1: newCoreV1ClientSet(cfg, nc),
+		coreV1: newCoreV1GroupSet(cfg, nc),
 	}, nil
 }
 
@@ -39,25 +40,25 @@ func (cs *clientSet) Close() {
 	cs.nc.Close()
 }
 
-func (cs *clientSet) CoreV1() client.CoreV1ClientSet {
+func (cs *clientSet) CoreV1() corev1client.GroupSet {
 	return cs.coreV1
 }
 
-type coreV1ClientSet struct {
+type coreV1GroupSet struct {
 	cfg        *Config
 	nc         *nats.Conn
-	namespaces client.NamespacesClient
+	namespaces corev1client.NamespacesClient
 }
 
-func newCoreV1ClientSet(cfg *Config, nc *nats.Conn) client.CoreV1ClientSet {
-	return &coreV1ClientSet{
+func newCoreV1GroupSet(cfg *Config, nc *nats.Conn) corev1client.GroupSet {
+	return &coreV1GroupSet{
 		cfg:        cfg,
 		nc:         nc,
 		namespaces: newNamespacesClient(cfg, nc),
 	}
 }
 
-func (cs *coreV1ClientSet) Namespaces() client.NamespacesClient {
+func (cs *coreV1GroupSet) Namespaces() corev1client.NamespacesClient {
 	return cs.namespaces
 }
 
@@ -66,7 +67,7 @@ type namespacesClient struct {
 	nc  *nats.Conn
 }
 
-func newNamespacesClient(cfg *Config, nc *nats.Conn) client.NamespacesClient {
+func newNamespacesClient(cfg *Config, nc *nats.Conn) corev1client.NamespacesClient {
 	return &namespacesClient{
 		cfg: cfg,
 		nc:  nc,

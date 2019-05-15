@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/nats-io/go-nats"
-	"github.com/nsyszr/ariane/pkg/api/handler"
+	"github.com/nsyszr/ariane/pkg/api/handlers"
 	"github.com/nsyszr/ariane/pkg/cmd/apiserver/config"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +20,7 @@ type server struct {
 	nc     *nats.Conn
 	errCh  chan error
 	wg     sync.WaitGroup
-	h      *handler.Handler
+	h      *handlers.Handler
 }
 
 func newServer(c *config.Config) (*server, error) {
@@ -54,7 +54,7 @@ func newServer(c *config.Config) (*server, error) {
 	}
 
 	s.nc = nc
-	s.h = handler.NewHandler(nc)
+	s.h = handlers.NewHandler(nc)
 
 	return s, nil
 }

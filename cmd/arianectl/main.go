@@ -5,11 +5,11 @@ import (
 
 	"github.com/nsyszr/ariane/api/corev1"
 	"github.com/nsyszr/ariane/api/metav1"
-	"github.com/nsyszr/ariane/client"
+	"github.com/nsyszr/ariane/client/natsio"
 )
 
 func main() {
-	cs, err := client.NewClientSetForNATS(client.NewConfigForNATS("localhost:4222"))
+	cs, err := natsio.NewClientSet(&natsio.Config{URL: "localhost:4222"})
 	if err != nil {
 		log.Fatal(err)
 	}
